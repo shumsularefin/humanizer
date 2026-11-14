@@ -93,7 +93,11 @@ personalized, not a one-size-fits-all filter.
 
 Six layers: general AI-tell catalog → academic-specific tells → preserve scholarly conventions →
 claim↔evidence matching → voice/venue calibration → funding-proposal mode (NSF/NIH structure,
-first-page primacy, claim↔feasibility). The audit→rewrite loop is defined in [`SKILL.md`](SKILL.md).
+first-page primacy, claim↔feasibility). Version 0.4 adds a mandatory **terminology lock** (Layer 0:
+one term per referent across the whole paper), **zero-tolerance repetition rules** (Layer 7: no
+logical, phrasal, or sentence-frame repetition), **discourse-level tells** that survive surface editing
+(Layer 8), and **academic structure and conventions** (Layer 9). The research behind each rule is in
+[`references/research-findings.md`](references/research-findings.md). The audit→rewrite loop is defined in [`SKILL.md`](SKILL.md).
 
 ## References
 

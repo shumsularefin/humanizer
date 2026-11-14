@@ -1,6 +1,6 @@
 ---
 name: academic-humanizer
-version: 0.3.3
+version: 0.4.0
 description: |
   Improve the clarity and voice of AI-assisted academic writing (papers, theses, rebuttals) and
   funding proposals (NSF Project Summary/Description, NIH Specific Aims): preserve scholarly
@@ -37,13 +37,63 @@ verb is stronger than its evidence.**
 1. **Read** the manuscript and any author writing sample; note the document type (paper vs. funding
    proposal) and the target venue or funding agency. For proposals, also apply Layer 6 and preserve
    appropriate vision.
-2. **Audit** (do not edit yet): list each detected pattern with its location and proposed fix, and each
-   empirical claim's evidence status.
-3. **Rewrite**: same structure and content, all claims and citations preserved, tells removed, over-claims
-   matched to evidence, legitimate hedging kept.
-4. **Report**: cleaned text plus a short change log (patterns removed, claims softened or given evidence
-   pointers, voice notes). Cover everything the original covered: if it had five paragraphs, so does the
-   rewrite.
+2. **Lock terminology (Layer 0, mandatory, before any edit).** Build the term ledger: every technical
+   term, method, model, mechanism, variable, dataset, and abbreviation, with the one canonical form the
+   rewrite will use everywhere.
+3. **Audit** (do not edit yet): list each detected pattern with its location and proposed fix, each
+   empirical claim's evidence status, each repetition (Layer 7), and each structural problem (Layers 8
+   and 9).
+4. **Rewrite**: same structure and content, all claims and citations preserved, tells removed, over-claims
+   matched to evidence, legitimate hedging kept, every ledger term used in its canonical form.
+5. **Verify**: re-scan the rewrite against the ledger (no synonym drift crept in during editing), against
+   Layer 7 (no repeated phrase, sentence frame, or claim), and against the original (no number, equation,
+   or citation changed).
+6. **Report**: cleaned text plus a short change log (patterns removed, claims softened or given evidence
+   pointers, terminology unified, repetitions removed, voice notes). Cover everything the original
+   covered: if it had five paragraphs, so does the rewrite. Keep the log to a few lines; the author wants
+   the prose back, not a lecture.
+
+---
+
+## Layer 0: Terminology lock (mandatory; overrides every other layer)
+Academic writing names one thing with one term. A reader who meets "synthesis model", then "generation
+framework", then "the proposed pipeline" assumes three different objects. Humanizing tools make this
+worse: in avoiding repetition they rotate synonyms for the same referent (elegant variation), and
+models trained with repetition penalties do it by default. In a manuscript that rotation is an error,
+not a style choice.
+
+**Rules.**
+- **One referent, one term, everywhere.** Pick the canonical term (the author's own, or the one in the
+  title, abstract, or method definition) and use it unchanged in every section, caption, table header,
+  and appendix. Never swap it for a synonym "for variety".
+- **Same form, not near forms.** "Contrastive loss" does not become "contrastive objective" or "the
+  contrastive term". "Participants" do not become "subjects", "respondents", and "users". "Mechanism"
+  does not become "process", "pathway", and "route" for the same mechanism.
+- **Abbreviations:** define once at first use in the main text (and again in the abstract if the venue
+  requires it), then use the abbreviation consistently. Do not alternate the full form and the
+  abbreviation, and do not re-define it in later sections.
+- **Symbols and notation:** one symbol per quantity throughout; never reuse a symbol for a second meaning.
+- **Capitalization, hyphenation, and spelling stay fixed** ("fine-tuning" everywhere, not also
+  "finetuning"; "Transformer" or "transformer", not both).
+- **Pronouns and "this"** must point unambiguously to a ledger term; if "this" could mean two things,
+  name the term.
+- **Contrast is the only reason to change a term:** a different word must mean a different thing. If two
+  terms in the original refer to the same object, unify them and note it in the report. If they might
+  refer to different objects, ask the author rather than guessing.
+
+**Term ledger (build it, use it, report it).**
+```
+canonical term        | variants found in draft               | action
+synthesis model (SM)  | generation framework, the pipeline    | unify -> "synthesis model"; abbrev after first use
+participants          | subjects, users                       | unify -> "participants"
+```
+
+**Before:** *Our synthesis model generates candidates. The generation framework then ranks them, and the
+proposed pipeline filters the outputs.*
+**After:** *The synthesis model generates candidates, ranks them, and filters the ranked list.*
+
+Repeating a ledger term is **required**, and it never counts as the repetition Layer 7 forbids. Layer 7
+targets repeated *phrasing, sentence frames, and ideas*, not repeated *terms*.
 
 ---
 
@@ -57,6 +107,19 @@ seamless*); copula avoidance ("serves as" -> "is"); negative parallelisms ("not 
 rule-of-three padding; elegant variation (cycling synonyms for one referent); filler
 ("it is worth noting that", "in order to"); **overlong, clause-stacked sentences (split them; see 2.11)**;
 and **em-dashes (remove entirely; recast with commas, colons, parentheses, or separate sentences)**.
+
+**Measured excess vocabulary in scientific text** (words whose frequency jumped after ChatGPT's release;
+Kobak et al., 2025; Liang et al., 2024; Juzek & Ward, 2025): *delve(s), underscore(s), showcasing,
+intricate, meticulous(ly), commendable, notable, noteworthy, pivotal, crucial, comprehensive, nuanced,
+multifaceted, realm, landscape, tapestry, embark, unveil, elucidate, garner, bolster, harness, align,
+enhance, potential, invaluable, versatile, innovative, groundbreaking, paramount.* Any one is fine in
+isolation and in its literal sense; a cluster in one paragraph is the tell. Replace with the plain word
+or the specific claim, never with a rotating synonym of a technical term (Layer 0).
+
+**Measured grammatical tells** (Reinhart et al., 2025, PNAS): present participial clauses at 2 to 5
+times the human rate and nominalizations at 1.5 to 2 times; repeated part-of-speech templates (Shaib et
+al., 2024); markdown-style bolding, headers, and bullet lists inside running prose (Sun et al., 2025);
+title-case section headings where the venue uses sentence case.
 
 **Before:** *Additionally, an enduring testament to the method's value is its ability to delve into
 intricate dependencies, showcasing a seamless integration that underscores its pivotal role.*
@@ -146,7 +209,9 @@ A general humanizer flattens legitimate scholarly constructs. Keep them.
   hypothesize that", "may indicate", "appears to" when the claim is genuinely uncertain.
   *Wrong fix:* turning *"the results suggest X"* into *"the results prove X"*: this manufactures
   over-claiming. Keep the calibrated verb.
-- **Passive voice** is fine when the actor is irrelevant: *"Samples were normalized to total protein."*
+- **Passive voice** is fine when the actor is irrelevant: *"Samples were normalized to total protein."* GPT-4o
+  uses the agentless passive at about half the human rate (Reinhart et al., 2025), so stripping every
+  passive makes the text *less* like human scientific prose, not more.
 - **First-person plural "we"** is standard; do not rewrite to avoid it.
 - **Semicolons and an occasional triple** are fine in moderation. Em-dashes are the exception: remove
   them entirely (Layer 1), recasting with commas, colons, parentheses, or separate sentences.
@@ -256,6 +321,132 @@ the gap for the author rather than papering over it.
 
 ---
 
+## Layer 7: Repetition and redundancy (zero tolerance)
+LLM text repeats itself at three levels: words and stock phrases (Kobak et al., 2025; Paech et al.,
+2025), syntactic templates (Shaib et al., 2024), and ideas (restating the same claim in the topic
+sentence, the body, and a closing summary). In academic prose all three waste the reader's time, and
+reviewers read them as padding.
+
+### 7.1 Logical repetition (the main target)
+The same claim, finding, or motivation stated more than once without adding anything.
+- **One claim, one home.** Each claim is made once, in the section where it belongs. Later sections refer
+  back ("the error-accumulation problem (Section 2)") instead of re-arguing it.
+- **No summary echoes.** Delete paragraph-final and section-final sentences that restate the paragraph
+  ("In summary, ...", "Overall, these results show ...", "This highlights the importance of ...").
+  The Wikipedia AI-cleanup guide lists section-ending summaries as a common tell.
+- **No restated motivation.** The introduction motivates the problem once. Methods, results, and
+  discussion do not re-motivate it.
+- **Abstract, introduction, and conclusion** may share content by convention, but not sentences. Each
+  re-expresses the point for its job (abstract: complete compressed report; introduction: gap and
+  contributions; conclusion: what was found, its limits, and what follows). Copy-paste across them is a
+  defect.
+- **Results vs. discussion.** Results report; discussion interprets. Do not re-list numbers in the
+  discussion that the results already gave; cite the table or figure instead.
+- **Duplicate list items.** In contribution lists, aims, and limitations, merge items that say the same
+  thing in different words.
+
+**Before:** *Long-horizon rollouts accumulate error. ... [two paragraphs later] As noted, error
+accumulation over long horizons is a key challenge. ... In summary, long-horizon error accumulation
+remains a central problem that our method addresses.*
+**After:** *Long-horizon rollouts accumulate error. ... [later] Our method bounds this error (Theorem 1).*
+
+### 7.2 Surface repetition
+- **Stock phrases:** no phrase of three or more non-technical words appears twice in a section
+  ("plays a crucial role", "in terms of", "a wide range of"). Ledger terms are exempt.
+- **Sentence-frame repetition:** do not open consecutive sentences or paragraphs with the same frame
+  ("This approach ... This approach ...", "We ... We ... We ...", "By doing X, ...  By doing Y, ...").
+- **Rhythm repetition:** vary sentence length. AI prose clusters at one medium length. Mix short
+  declarative sentences with longer ones that carry a qualification.
+- **Fix by restructuring, never by synonym swapping.** The cure for a repeated phrase is to merge,
+  cut, or restructure the sentence. Replacing a repeated *term* with a synonym breaks Layer 0.
+
+---
+
+## Layer 8: Discourse-level tells (what survives surface editing)
+Surface edits alone do not change what makes a text read as machine-written. In fiction, StoryScope
+(Russell et al., 2026) separated human from AI stories at 93.2% macro-F1 using discourse features alone,
+and that separation survived stylistic rewriting (93.9% after LAMP editing). The fiction-specific
+features (flashbacks, fourth wall, subplots) do not apply to papers; the underlying pattern does. Check
+these academic analogs:
+
+- **Over-explanation (StoryScope: thematic explicitness, narratorial commentary).** AI states what each
+  result "means" after every result. Report the result; interpret once, in the discussion, at the
+  strength the evidence allows.
+- **Moralizing and significance framing (moral/philosophical weighting).** Drop sentences that tell the
+  reader why the field should care when the result already shows it (see 2.2).
+- **Over-unified narrative (thematic unity).** AI papers make every paragraph serve one tidy story and
+  hide what did not fit. Keep the negative result, the failed baseline, the dataset where the method
+  loses, and the honest limitation. Real research has loose ends; state them.
+- **Single-track causality (causal-chain continuity).** AI explanations run one clean cause-to-effect
+  chain. Where the evidence admits alternative explanations or confounds, name them.
+- **Uniform intensity (Claude's strongest fiction tell: flat event escalation).** Every finding gets the
+  same emphasis, so nothing stands out. Rank findings: lead with the main result, give secondary ones
+  less space, put minor ones in a table or appendix.
+- **Vague allusion vs. named reference (implicit echoes 72% AI vs 50% human).** "Prior work has shown"
+  and "recent studies suggest" become a named, cited work: "Smith et al. (2021) showed ..."
+- **Mechanical inversion is also a tell (rarity rule).** Flipping every AI default produces a different
+  predictable pattern. Do not, for example, strip every hedge, every transition, or every passive
+  sentence. Choose what a careful author in this field would write here.
+
+Full StoryScope tables are in `references/storyscope-features.md`; the research behind every rule in
+this skill is in `references/research-findings.md`.
+
+---
+
+## Layer 9: Academic structure and conventions
+A humanized draft must still be a correctly built paper. Check these after the sentence-level pass.
+
+### 9.1 Document structure
+- **Follow the venue's section order** (IMRaD for empirical work: Introduction, Methods, Results,
+  Discussion; or the venue's template). Do not add, drop, or merge sections the venue expects.
+- **Abstract** (single paragraph, no citations unless the venue allows): context in one sentence, the
+  gap, what was done, the main quantitative result, and the implication. No hype opener.
+- **Introduction** follows the create-a-research-space arc: establish the territory briefly, identify
+  the specific gap, state how this paper fills it, list contributions, and (optionally) give a roadmap.
+  The gap must be specific and cited, not "little attention has been paid".
+- **Related work** is organized by theme or approach, and each theme ends with how this work differs.
+  It is not a list of one-sentence summaries.
+- **Methods** contain enough detail to reproduce: data, preprocessing, model, hyperparameters, metrics,
+  statistical tests, and compute, in that kind of order.
+- **Results** state findings with numbers and pointers to tables and figures, in order of importance.
+- **Discussion** interprets, compares with prior work, and states limitations explicitly (a dedicated
+  limitations paragraph or section where the venue asks for one).
+- **Conclusion** is short, adds no new results, and does not repeat the abstract (Layer 7).
+
+### 9.2 Paragraph structure
+- **One idea per paragraph.** The first sentence states it (topic sentence); the rest support it; the
+  paragraph ends when the idea ends, not with a summary line.
+- **Old-to-new information flow.** Start sentences with information the reader already has (a ledger
+  term, the previous sentence's result) and end with the new information. This gives cohesion without
+  stacked connectives (2.6).
+- **Transitions carry logic, not decoration.** Use "however", "therefore", "because" only where the
+  logical relation is real.
+
+### 9.3 Sentence-level conventions
+- **Tense:** present for established facts and for what the paper shows ("Table 2 shows"); past for
+  what was done and observed in this study ("We trained ...", "Accuracy fell ..."). Keep each section's
+  tense consistent.
+- **Prefer verbs to nominalizations** where it improves clarity ("we analyzed" over "an analysis was
+  performed"). Instruction-tuned models use nominalizations at 1.5 to 2 times the human rate and present
+  participial clauses at 2 to 5 times the human rate (Reinhart et al., 2025): cut ", enabling ...",
+  ", highlighting ...", ", leading to ..." tails (see Layer 1).
+- **Parallelism** in lists, aims, and contributions: same grammatical form for each item.
+- **Numbers and units:** consistent decimal places within a table or comparison, SI units, a space
+  between value and unit, and the same format for every range ("2--6%").
+- **Figures and tables** are referenced in the text, in order, by number, with the same label style
+  everywhere ("Figure 3" or "Fig. 3", not both). Every figure and table is discussed at least once.
+- **Citations** follow one style throughout; claims attributed to a source sit next to that citation.
+- **Spelling variety:** pick American or British spelling and use it throughout.
+
+### 9.4 Integrity
+- Never invent citations, data, results, or affiliations. If a claim needs a source the draft does not
+  have, flag it for the author.
+- Keep the author's AI-use disclosure where the venue requires one. This skill improves writing; it does
+  not hide how the writing was produced.
+
+---
+
 ## Output
 Return the cleaned text plus a short change report: patterns removed (by type), claims softened or given
-evidence pointers, and any voice/venue notes. Confirm that no number, equation, or citation was altered.
+evidence pointers, the term ledger with every unification made, repetitions removed, and any voice/venue notes. Confirm
+that no number, equation, or citation was altered and that every ledger term appears in one form only.
